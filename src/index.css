@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 20% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 20%;
+    --primary: 145 65% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 220 20% 30%;
+    --muted: 210 15% 93%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 38 92% 55%;
+    --accent-foreground: 220 15% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 145 65% 42%;
+    --radius: 1rem;
+
+    --phase-green: 145 65% 42%;
+    --phase-blue: 210 80% 52%;
+    --phase-purple: 270 60% 55%;
+    --phase-orange: 32 95% 55%;
+    --phase-gold: 45 100% 50%;
+    --streak: 32 95% 55%;
+    --locked: 210 15% 75%;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+}
+
+@layer components {
+  /* Phase node shadows */
+  .node-shadow-green { box-shadow: 0 6px 0 0 hsl(145 65% 32%); }
+  .node-shadow-blue  { box-shadow: 0 6px 0 0 hsl(210 80% 42%); }
+  .node-shadow-purple { box-shadow: 0 6px 0 0 hsl(270 60% 45%); }
+  .node-shadow-orange { box-shadow: 0 6px 0 0 hsl(32 95% 45%); }
+  .node-shadow-gold  { box-shadow: 0 6px 0 0 hsl(45 100% 40%); }
+  .node-shadow-locked { box-shadow: 0 6px 0 0 hsl(210 15% 65%); }
+
+  /* 3D button press effect */
+  .btn-3d {
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .btn-3d:active {
+    transform: translateY(4px);
+    box-shadow: none !important;
+  }
+
+  /* Phase colors */
+  .phase-green  { background-color: hsl(var(--phase-green)); }
+  .phase-blue   { background-color: hsl(var(--phase-blue)); }
+  .phase-purple { background-color: hsl(var(--phase-purple)); }
+  .phase-orange { background-color: hsl(var(--phase-orange)); }
+  .phase-gold   { background-color: hsl(var(--phase-gold)); }
+  .phase-locked { background-color: hsl(var(--locked)); }
+
+  .text-phase-green  { color: hsl(var(--phase-green)); }
+  .text-phase-blue   { color: hsl(var(--phase-blue)); }
+  .text-phase-purple { color: hsl(var(--phase-purple)); }
+  .text-phase-orange { color: hsl(var(--phase-orange)); }
+  .text-phase-gold   { color: hsl(var(--phase-gold)); }
+
+  .border-phase-green  { border-color: hsl(var(--phase-green)); }
+  .border-phase-blue   { border-color: hsl(var(--phase-blue)); }
+  .border-phase-purple { border-color: hsl(var(--phase-purple)); }
+  .border-phase-orange { border-color: hsl(var(--phase-orange)); }
+  .border-phase-gold   { border-color: hsl(var(--phase-gold)); }
+
+  /* Streak orange */
+  .text-streak { color: hsl(var(--streak)); }
+  .bg-streak   { background-color: hsl(var(--streak)); }
+
+  /* Upload zone */
+  .upload-zone {
+    @apply border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200;
+    border-color: hsl(var(--border));
+  }
+  .upload-zone:hover {
+    border-color: hsl(var(--primary));
+    background-color: hsl(var(--primary) / 0.04);
+  }
+}
+
+@layer utilities {
+  /* Staggered animation delays */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+  .delay-700 { animation-delay: 700ms; }
+  .delay-800 { animation-delay: 800ms; }
+
+  /* Opacity for staggered reveals */
+  .opacity-0-init { opacity: 0; }
+
+  /* Scrollbar hide for path */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
