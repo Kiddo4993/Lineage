@@ -8,6 +8,7 @@ import { Card, CardContent } from "./ui/card";
 import { getLesson, getPhaseForDay, MOTIVATIONAL_MESSAGES } from "../data/curriculum";
 import { cn } from "../lib/utils";
 import confetti from "canvas-confetti";
+import { saveLessonDrawing } from "../lib/drawingStore";
 
 interface LessonViewProps {
   day: number;
@@ -156,6 +157,9 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
     setCelebrating(true);
     setShowXP(true);
     fireConfetti();
+    if (uploadedImage) {
+      saveLessonDrawing(day, uploadedImage, feedback);
+    }
     setTimeout(() => {
       onComplete(day);
     }, 1800);
