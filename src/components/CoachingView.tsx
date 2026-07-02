@@ -6,6 +6,7 @@ import {
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { cn } from "../lib/utils";
+import { saveCoachingDrawing } from "../lib/drawingStore";
 
 interface CoachingViewProps {
   onBack: () => void;
@@ -139,6 +140,12 @@ export function CoachingView({ onBack }: CoachingViewProps) {
     setTimeout(() => {
       setIsAnalyzing(false);
       setShowFeedback(true);
+      const data = FEEDBACK_BY_CATEGORY[selectedCategory];
+      saveCoachingDrawing(selectedCategory, uploadedImage, {
+        strengths: data.strengths,
+        improvements: data.improvements,
+        next: data.tip,
+      });
     }, 2400);
   }
 

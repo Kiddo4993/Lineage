@@ -13,12 +13,30 @@ interface AppState {
   streakDays: number;
   todayCompleted: boolean;
   xp: number;
+  lastCompletedDate: string | null;
+}
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isYesterday(dateISO: string): boolean {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return dateISO === yesterday.toISOString().slice(0, 10);
 }
 
 function loadState(): AppState {
   try {
     const saved = localStorage.getItem("lineage_state");
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed: AppState = JSON.parse(saved);
+      // Reset today's completion flag if the last completion wasn't today
+      if (parsed.lastCompletedDate !== todayISO()) {
+        parsed.todayCompleted = false;
+      }
+      return parsed;
+    }
   } catch {}
   return {
     currentDay: 1,
@@ -26,6 +44,7 @@ function loadState(): AppState {
     streakDays: 0,
     todayCompleted: false,
     xp: 0,
+    lastCompletedDate: null,
   };
 }
 
@@ -61,13 +80,25 @@ export default function App() {
         Math.max(prev.currentDay, day + 1),
         45
       );
-      const newStreak = alreadyDone ? prev.streakDays : prev.streakDays + 1;
+
+      const today = todayISO();
+      let newStreak = prev.streakDays;
+      if (prev.lastCompletedDate === today) {
+        // Already completed a lesson today — streak doesn't change
+      } else if (prev.lastCompletedDate && isYesterday(prev.lastCompletedDate)) {
+        newStreak = prev.streakDays + 1;
+      } else {
+        // First-ever completion, or a missed day broke the streak
+        newStreak = 1;
+      }
+
       return {
         ...prev,
         completedLessons: newCompleted,
         currentDay: newCurrentDay,
         streakDays: newStreak,
         todayCompleted: true,
+        lastCompletedDate: today,
         xp: prev.xp + 15,
       };
     });
