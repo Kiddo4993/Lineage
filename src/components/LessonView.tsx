@@ -9,6 +9,8 @@ import { getLesson, getPhaseForDay, MOTIVATIONAL_MESSAGES } from "../data/curric
 import { cn } from "../lib/utils";
 import confetti from "canvas-confetti";
 import { saveLessonDrawing } from "../lib/drawingStore";
+import { analyzeDrawing } from "../lib/aiClient";
+import type { DrawingFeedback } from "../types/feedback";
 
 interface LessonViewProps {
   day: number;
@@ -106,13 +108,12 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showXP, setShowXP] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+  const [feedback, setFeedback] = useState<DrawingFeedback | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const motMessage = MOTIVATIONAL_MESSAGES[day % MOTIVATIONAL_MESSAGES.length];
 
   if (!lesson || !phase) return null;
-
-  const feedback = generateFeedback(day, lesson.aiFeedbackPrompt);
 
   const phaseColorMap: Record<string, string> = {
     green: "text-green-600 bg-green-50 border-green-200",
@@ -144,13 +145,13 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
     reader.readAsDataURL(file);
   }
 
-  function handleAnalyze() {
+  async function handleAnalyze() {
     if (!uploadedImage) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      setStep("feedback");
-    }, 2200);
+    const aiResult = await analyzeDrawing(uploadedImage, lesson!.aiFeedbackPrompt);
+    setFeedback(aiResult ?? generateFeedback(day, lesson!.aiFeedbackPrompt));
+    setIsAnalyzing(false);
+    setStep("feedback");
   }
 
   function handleComplete() {
@@ -158,7 +159,7 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
     setShowXP(true);
     fireConfetti();
     if (uploadedImage) {
-      saveLessonDrawing(day, uploadedImage, feedback);
+      saveLessonDrawing(day, uploadedImage, feedback ?? undefined);
     }
     setTimeout(() => {
       onComplete(day);
@@ -381,7 +382,7 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
         )}
 
         {/* ── Step 4: Feedback ── */}
-        {step === "feedback" && (
+        {step === "feedback" && feedback && (
           <div className="space-y-5 animate-bounce-in">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">

@@ -7,6 +7,8 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { cn } from "../lib/utils";
 import { saveCoachingDrawing } from "../lib/drawingStore";
+import { analyzeDrawing } from "../lib/aiClient";
+import type { DrawingFeedback } from "../types/feedback";
 
 interface CoachingViewProps {
   onBack: () => void;
@@ -124,6 +126,7 @@ export function CoachingView({ onBack }: CoachingViewProps) {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [feedback, setFeedback] = useState<DrawingFeedback | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -134,28 +137,28 @@ export function CoachingView({ onBack }: CoachingViewProps) {
     reader.readAsDataURL(file);
   }
 
-  function handleAnalyze() {
+  async function handleAnalyze() {
     if (!uploadedImage || !selectedCategory) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      setShowFeedback(true);
-      const data = FEEDBACK_BY_CATEGORY[selectedCategory];
-      saveCoachingDrawing(selectedCategory, uploadedImage, {
-        strengths: data.strengths,
-        improvements: data.improvements,
-        next: data.tip,
-      });
-    }, 2400);
+    const category = CATEGORIES.find((c) => c.id === selectedCategory);
+    const prompt = `Category: ${category?.label} — ${category?.description}. Give feedback tailored to this subject matter.`;
+    const aiResult = await analyzeDrawing(uploadedImage, prompt);
+    const fallback = FEEDBACK_BY_CATEGORY[selectedCategory];
+    const result: DrawingFeedback =
+      aiResult ?? { strengths: fallback.strengths, improvements: fallback.improvements, next: fallback.tip };
+    setFeedback(result);
+    saveCoachingDrawing(selectedCategory, uploadedImage, result);
+    setIsAnalyzing(false);
+    setShowFeedback(true);
   }
 
   function handleReset() {
     setUploadedImage(null);
     setShowFeedback(false);
     setSelectedCategory(null);
+    setFeedback(null);
   }
 
-  const feedbackData = selectedCategory ? FEEDBACK_BY_CATEGORY[selectedCategory] : null;
   const canAnalyze = !!uploadedImage && !!selectedCategory;
 
   return (
@@ -332,7 +335,7 @@ export function CoachingView({ onBack }: CoachingViewProps) {
               </div>
             )}
 
-            {feedbackData && (
+            {feedback && (
               <>
                 <Card className="border-green-200 bg-green-50/50">
                   <CardContent className="pt-5">
@@ -343,7 +346,7 @@ export function CoachingView({ onBack }: CoachingViewProps) {
                       <h3 className="font-bold text-green-700 text-sm uppercase tracking-wide">What's working</h3>
                     </div>
                     <ul className="space-y-2">
-                      {feedbackData.strengths.map((s, i) => (
+                      {feedback.strengths.map((s, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-green-800">
                           <span className="text-green-500 shrink-0 mt-0.5">✓</span> {s}
                         </li>
@@ -361,7 +364,7 @@ export function CoachingView({ onBack }: CoachingViewProps) {
                       <h3 className="font-bold text-blue-700 text-sm uppercase tracking-wide">To improve</h3>
                     </div>
                     <ul className="space-y-2">
-                      {feedbackData.improvements.map((s, i) => (
+                      {feedback.improvements.map((s, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-blue-800">
                           <span className="text-blue-400 shrink-0 mt-0.5">→</span> {s}
                         </li>
@@ -376,7 +379,7 @@ export function CoachingView({ onBack }: CoachingViewProps) {
                       <span className="text-base">🎯</span>
                       <h3 className="font-bold text-purple-700 text-sm uppercase tracking-wide">Pro tip</h3>
                     </div>
-                    <p className="text-sm text-purple-800">{feedbackData.tip}</p>
+                    <p className="text-sm text-purple-800">{feedback.next}</p>
                   </CardContent>
                 </Card>
               </>
