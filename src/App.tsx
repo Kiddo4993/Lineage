@@ -3,9 +3,10 @@ import { Index } from "./pages/Index";
 import { RoadmapView } from "./components/RoadmapView";
 import { LessonView } from "./components/LessonView";
 import { CoachingView } from "./components/CoachingView";
+import { SketchbookView } from "./components/SketchbookView";
 import { NotFound } from "./pages/NotFound";
 
-type View = "home" | "roadmap" | "lesson" | "coaching" | "notfound";
+type View = "home" | "roadmap" | "lesson" | "coaching" | "sketchbook" | "notfound";
 
 interface AppState {
   currentDay: number;
@@ -124,6 +125,7 @@ export default function App() {
         <Index
           onStartLearning={() => setView("roadmap")}
           onGetCoaching={() => setView("coaching")}
+          onOpenSketchbook={() => setView("sketchbook")}
         />
       )}
 
@@ -148,6 +150,10 @@ export default function App() {
 
       {view === "coaching" && (
         <CoachingView onBack={() => setView("home")} />
+      )}
+
+      {view === "sketchbook" && (
+        <SketchbookView onBack={() => setView("home")} />
       )}
 
       {view === "notfound" && (

@@ -1,10 +1,11 @@
-import { ChevronRight, Sparkles, Flame, TrendingUp, Pencil, Star, Users } from "lucide-react";
+import { ChevronRight, Sparkles, Flame, TrendingUp, Pencil, Star, Users, BookImage } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 
 interface IndexProps {
   onStartLearning: () => void;
   onGetCoaching: () => void;
+  onOpenSketchbook: () => void;
 }
 
 const FEATURE_BADGES = [
@@ -21,7 +22,7 @@ const PHASE_DOTS = [
   { color: "bg-yellow-400", label: "Hero" },
 ];
 
-export function Index({ onStartLearning, onGetCoaching }: IndexProps) {
+export function Index({ onStartLearning, onGetCoaching, onOpenSketchbook }: IndexProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Background decoration */}
@@ -33,11 +34,20 @@ export function Index({ onStartLearning, onGetCoaching }: IndexProps) {
       <div className="relative flex-1 flex flex-col max-w-lg mx-auto w-full px-5 pb-10">
         {/* Wordmark */}
         <div className="pt-14 pb-6 animate-fade-in-up">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_4px_0_0_hsl(145_65%_32%)]">
-              <Pencil size={20} className="text-white" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_4px_0_0_hsl(145_65%_32%)]">
+                <Pencil size={20} className="text-white" />
+              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">LINEAGE</h1>
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">LINEAGE</h1>
+            <button
+              onClick={onOpenSketchbook}
+              className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/70 transition-colors cursor-pointer"
+              aria-label="My Sketchbook"
+            >
+              <BookImage size={18} className="text-foreground" />
+            </button>
           </div>
           <p className="text-muted-foreground font-medium text-base leading-snug pl-12">
             Learn to draw in 45 days.<br />

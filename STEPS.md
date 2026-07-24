@@ -8,6 +8,27 @@ Everything below is buildable on top of the current stack (React + Vite + TypeSc
 
 ---
 
+## 📋 Progress Log (current status, updated live)
+
+| Step | Status | Notes |
+|---|---|---|
+| 1. Streak fix | ✅ Done | `App.tsx` tracks `lastCompletedDate`; verified via build + typecheck |
+| 2. Persist drawings (IndexedDB) | ✅ Done | `src/lib/drawingStore.ts`; wired into `LessonView`/`CoachingView` |
+| 4. Sketchbook gallery | ✅ Done | `SketchbookView.tsx`, nav icon on home screen; Playwright-verified, no console errors |
+| 3. Real AI feedback (Gemini) | ✅ Done (local) | Verified end-to-end via `vercel dev` + Playwright: uploaded a real test drawing, got back specific, accurate Gemini feedback (not canned text), zero console errors. Model name fixed (`gemini-2.5-flash` → `gemini-flash-latest`, since 2.5 was deprecated for new API keys). **Remaining: production deploy** — push to GitHub + deploy on Vercel to test the live URL. |
+| 5. PWA install support | ⬜ Not started | Waiting until Step 3 is confirmed working |
+| 6. Native mobile app (React Native) | ⬜ Not started, scoped | New — see below. Large effort, separate codebase. Will start after the web app's core loop (Steps 1–5) is solid |
+
+### Known findings from setup so far
+- **Model name deprecated:** `gemini-2.5-flash` returned a 404 ("no longer available to new users") for a freshly created API key. Fixed by switching to the `gemini-flash-latest` alias, which Google keeps pointed at their current recommended flash model (resolved to `gemini-3.5-flash` at time of testing) — this avoids needing to update the model string again as Google rotates versions.
+- **`npm run build` does NOT test the AI feature** — it only builds static frontend files. Use `npx vercel dev` (starts frontend + `/api` function together on `localhost:3000`) to test AI feedback locally.
+- **`.env.local` is local-only** and is *not* used by the deployed site — Vercel reads env vars from the dashboard at build/deploy time instead. No second "production env file" is needed.
+- **`vercel dev` pulls env vars from the linked Vercel project (remote), not from `.env.local`**, once a project is linked — confirmed via `--debug` log (`Fetching Environment Variables of prj_...`). So the dashboard variable name/value is what actually matters for both local `vercel dev` testing and production.
+- Vercel's "Sensitive" environment variables **cannot be scoped to Development** (their values can't be decrypted for local pulls) — we're keeping `GEMINI_API_KEY` as a plain (non-sensitive) variable across all three environments to sidestep this, acceptable given it's a free-tier key with low stakes.
+- The Gemini key was pasted into chat/screenshots during setup — flagged and the user rotated it.
+
+---
+
 ## Step 1 — Fix streak logic (foundation)
 **No new tools. No user input needed.**
 
@@ -43,6 +64,21 @@ Replaces the fake, canned feedback (`generateFeedback()` in `LessonView.tsx`, `F
 
 The code for the serverless function and frontend wiring can be written *before* you have the key — it just won't be testable end-to-end until it exists.
 
+### ✅ Code status: written and building cleanly
+
+- `api/analyze-drawing.ts` — Vercel serverless function, calls Gemini (`gemini-2.5-flash`) with the uploaded image + lesson/category prompt, requests structured JSON (`strengths`, `improvements`, `next`).
+- `src/lib/aiClient.ts` — frontend fetch wrapper; returns `null` on any failure.
+- `src/types/feedback.ts` — shared `DrawingFeedback` type.
+- `LessonView.tsx` and `CoachingView.tsx` now call the real API on "Get AI Feedback" / "Analyze My Drawing", and **automatically fall back to the original canned feedback** if the API call fails (offline, quota exceeded, missing key, etc.) — the app never breaks even without a key configured.
+- `.env.example` added (copy to `.env.local`, fill in your key — `.env*` is gitignored).
+
+### To actually test this end-to-end
+
+1. ✅ Key created at aistudio.google.com/app/apikey (rotated after being exposed in chat).
+2. ✅ Vercel CLI installed locally (`npm install -D vercel`, run via `npx vercel`), logged in, project linked (`npx vercel link`).
+3. 🟡 **Remaining:** rename the `Gemini_API_Key` dashboard variable to exactly `GEMINI_API_KEY`, then re-run `npx vercel dev` and test `/api/analyze-drawing`.
+4. **Production deploy** (once local test passes): push this repo to GitHub, import it in the Vercel dashboard (or run `npx vercel --prod`) — the same `GEMINI_API_KEY` dashboard variable is used automatically.
+
 ---
 
 ## Step 4 — Sketchbook gallery
@@ -59,6 +95,21 @@ Makes the app installable to a phone home screen with an offline-capable shell. 
 
 **What I need from you:**
 - **App icons**: a square logo/icon image (ideally 512×512px PNG, plus a 192×192px version) to use as the home-screen icon. If you don't have one yet, I can generate a simple placeholder icon, or we can skip this step until you have branded artwork.
+
+---
+
+## Step 6 — Native mobile app (React Native)
+**Decided:** you want a real native app (App Store / Play Store), not just the PWA from Step 5. This is a significantly larger scope than everything above — worth understanding before we start:
+
+- **What it means:** a **separate codebase** using React Native (or Expo, which wraps React Native with a much easier build/deploy toolchain — recommended). The UI (roadmap, lesson flow, coaching, sketchbook) gets rebuilt with React Native components — web `<div>`/Tailwind doesn't run natively, though the *logic* (curriculum data, streak/XP logic, drawing store schema, API calls to `/api/analyze-drawing`) can largely be reused/ported.
+- **Recommended approach:** Expo (`npx create-expo-app`) — handles iOS/Android builds without needing a Mac + Xcode for most of development, has Expo Go for instant device testing, and EAS Build/Submit for shipping to the app stores without maintaining native build infra yourself.
+- **New external services/accounts needed:**
+  - **Apple Developer Program** ($99/year) — required to publish to the App Store, and needed even for some testing (TestFlight).
+  - **Google Play Console** ($25 one-time) — required to publish to the Play Store.
+  - **Expo/EAS account** (free tier available) — for build/submit tooling.
+- **Sequencing recommendation:** finish validating the web app's core loop first (Steps 1–5, especially confirming real AI feedback works and people actually use it), *then* invest in the native rebuild — porting a validated product is a much better bet than building two versions in parallel from day one.
+
+This step is scoped but **not started** — say the word when you want to kick it off, ideally after Step 3 is confirmed working end-to-end.
 
 ---
 
