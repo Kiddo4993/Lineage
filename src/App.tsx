@@ -5,6 +5,7 @@ import { LessonView } from "./components/LessonView";
 import { CoachingView } from "./components/CoachingView";
 import { SketchbookView } from "./components/SketchbookView";
 import { NotFound } from "./pages/NotFound";
+import { localDay, isYesterday } from "./lib/dates";
 
 type View = "home" | "roadmap" | "lesson" | "coaching" | "sketchbook" | "notfound";
 
@@ -17,15 +18,7 @@ interface AppState {
   lastCompletedDate: string | null;
 }
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function isYesterday(dateISO: string): boolean {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return dateISO === yesterday.toISOString().slice(0, 10);
-}
+const todayISO = localDay;
 
 function loadState(): AppState {
   try {
@@ -38,7 +31,16 @@ function loadState(): AppState {
       }
       return parsed;
     }
-  } catch {}
+  } catch (err) {
+    // Keep the unreadable save under another key rather than overwriting it with a fresh start.
+    console.warn("Couldn't read saved progress; starting fresh and keeping a backup.", err);
+    try {
+      const raw = localStorage.getItem("lineage_state");
+      if (raw) localStorage.setItem("lineage_state_backup", raw);
+    } catch {
+      // storage is unavailable (e.g. private mode); nothing to back up
+    }
+  }
   return {
     currentDay: 1,
     completedLessons: [],
@@ -52,7 +54,9 @@ function loadState(): AppState {
 function saveState(state: AppState) {
   try {
     localStorage.setItem("lineage_state", JSON.stringify(state));
-  } catch {}
+  } catch (err) {
+    console.warn("Couldn't save progress.", err);
+  }
 }
 
 export default function App() {
