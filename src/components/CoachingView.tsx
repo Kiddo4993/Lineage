@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import {
   ArrowLeft, Upload, Sparkles, X, ImageIcon, CheckCircle2,
-  Pencil, ChevronDown,
+  Pencil,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";

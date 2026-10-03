@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import {
   ArrowLeft, BookOpen, Pencil, Upload, Sparkles,
   CheckCircle2, Camera, X, ImageIcon, ChevronRight, Star,
@@ -27,7 +27,7 @@ const STEPS: { id: Step; label: string; icon: typeof BookOpen }[] = [
   { id: "feedback", label: "Feedback", icon: Sparkles },
 ];
 
-function generateFeedback(day: number, prompt: string): { strengths: string[]; improvements: string[]; next: string } {
+function generateFeedback(day: number): { strengths: string[]; improvements: string[]; next: string } {
   const strengthPools = [
     "Your line confidence has really improved",
     "Great attention to overall composition",
@@ -149,7 +149,7 @@ export function LessonView({ day, onComplete, onBack }: LessonViewProps) {
     if (!uploadedImage) return;
     setIsAnalyzing(true);
     const aiResult = await analyzeDrawing(uploadedImage, lesson!.aiFeedbackPrompt);
-    setFeedback(aiResult ?? generateFeedback(day, lesson!.aiFeedbackPrompt));
+    setFeedback(aiResult ?? generateFeedback(day));
     setIsAnalyzing(false);
     setStep("feedback");
   }

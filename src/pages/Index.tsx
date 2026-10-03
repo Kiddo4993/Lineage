@@ -1,6 +1,5 @@
 import { ChevronRight, Sparkles, Flame, TrendingUp, Pencil, Star, Users, BookImage } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 
 interface IndexProps {
   onStartLearning: () => void;

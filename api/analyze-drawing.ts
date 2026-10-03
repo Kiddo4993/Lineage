@@ -25,8 +25,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     prompt?: string;
   };
 
-  if (!imageBase64 || !prompt) {
+  if (typeof imageBase64 !== "string" || typeof prompt !== "string" || !imageBase64 || !prompt) {
     res.status(400).json({ error: "imageBase64 and prompt are required" });
+    return;
+  }
+  // Lesson prompts are under 250 characters; this keeps the public endpoint from
+  // being used to send Gemini arbitrarily long prompts.
+  if (prompt.length > 2000) {
+    res.status(400).json({ error: "prompt is too long" });
     return;
   }
 
