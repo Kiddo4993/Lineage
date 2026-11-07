@@ -1,73 +1,34 @@
-# React + TypeScript + Vite
+# LINEAGE
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Learn to draw in 45 days.** One short lesson a day, a drawing task to finish on paper, and feedback on the photo you upload.
 
-Currently, two official plugins are available:
+**[Try it live →](https://lineage-ruddy.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What's inside
 
-## React Compiler
+- **A 45-day course in 5 phases**, laid out as a roadmap you work through one day at a time:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+  | Phase | Days | You learn |
+  |---|---|---|
+  | Foundations | 1–9 | lines, shapes, contours, ellipses, boxes, cylinders, gesture |
+  | Proportions | 10–18 | measuring, head proportions, profiles, the 8-heads figure |
+  | Anatomy Lite | 19–27 | the skeleton, torso, limbs, hands, feet, faces and expressions |
+  | Drawing Smarter | 28–36 | light and shadow, value, texture, hatching, silhouettes, focal points |
+  | Hero Mode | 37–45 | drawing from photos, environments, creature and character design, a final project |
 
-## Expanding the ESLint configuration
+- **Drawing feedback.** Upload a photo of your drawing and get 2 strengths, 2 things to improve and a next challenge. The feedback comes from Google Gemini through a small serverless function (`api/analyze-drawing.ts`); if that's unavailable, the app falls back to built-in tips.
+- **Streaks**, to keep you drawing every day.
+- **A sketchbook** of everything you've uploaded, saved in your browser (IndexedDB), so you can compare day 1 with day 30.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Run it locally
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+For AI feedback, set `GEMINI_API_KEY` in your environment. The `/api` function runs on Vercel (`vercel dev` locally). Without a key, everything else still works.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Built with
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+React 19, TypeScript, Vite, Tailwind CSS, Radix UI, Framer Motion, and Google Gemini for feedback, deployed on Vercel.
